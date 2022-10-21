@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataDonation", "DataDonation.csproj", "{C22A1D98-0F81-487B-BDBB-BEBFB5AE56BE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "api\API.csproj", "{AD7E9D26-12DA-4B0C-A6CA-C0059F7A4260}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DB", "db\DB.csproj", "{3DBE951A-7BC5-477C-ABBB-C6462729B9E3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "decrypt-tool", "decrypt-tool\decrypt-tool.csproj", "{24DF36AF-C2F6-4056-A164-F13D65D70E4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +15,18 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C22A1D98-0F81-487B-BDBB-BEBFB5AE56BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C22A1D98-0F81-487B-BDBB-BEBFB5AE56BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C22A1D98-0F81-487B-BDBB-BEBFB5AE56BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C22A1D98-0F81-487B-BDBB-BEBFB5AE56BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD7E9D26-12DA-4B0C-A6CA-C0059F7A4260}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD7E9D26-12DA-4B0C-A6CA-C0059F7A4260}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD7E9D26-12DA-4B0C-A6CA-C0059F7A4260}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD7E9D26-12DA-4B0C-A6CA-C0059F7A4260}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3DBE951A-7BC5-477C-ABBB-C6462729B9E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3DBE951A-7BC5-477C-ABBB-C6462729B9E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3DBE951A-7BC5-477C-ABBB-C6462729B9E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3DBE951A-7BC5-477C-ABBB-C6462729B9E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24DF36AF-C2F6-4056-A164-F13D65D70E4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24DF36AF-C2F6-4056-A164-F13D65D70E4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24DF36AF-C2F6-4056-A164-F13D65D70E4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24DF36AF-C2F6-4056-A164-F13D65D70E4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
