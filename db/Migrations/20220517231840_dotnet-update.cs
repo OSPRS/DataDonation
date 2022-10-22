@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DataDonation.Migrations {
+namespace DB.Migrations {
   public partial class dotnetupdate : Migration {
     protected override void Up(MigrationBuilder migrationBuilder) {
       migrationBuilder.AlterColumn<DateTime>(

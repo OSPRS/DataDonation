@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace DataDonation.Migrations
+namespace DB.Migrations
 {
     public partial class Initial : Migration
     {

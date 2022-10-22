@@ -1,6 +1,6 @@
 using System;
 
-namespace DataDonation.Models
+namespace DB.Models
 {
     public class DataDonationEntry
     {
