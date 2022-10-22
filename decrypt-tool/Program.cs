@@ -9,6 +9,7 @@ using DB;
 using DB.Models;
 using Microsoft.EntityFrameworkCore;
 using Sharprompt;
+using System.Linq;
 
 namespace DecryptTool
 {
@@ -17,7 +18,9 @@ namespace DecryptTool
         static string keysPath = "keys";
         static string keysPrivateFileName = "private_key.pem";
         static string keysPublicFileName = "public_key.pem";
+        static string outputFile = "cleartext_data.csv";
 
+        [Verb("descrypt", true, HelpText = "Generate Keys for encryption/decryption.")]
         public class Options
         {
             [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
@@ -39,16 +42,18 @@ namespace DecryptTool
         [Verb("keygen", HelpText = "Generate Keys for encryption/decryption.")]
         public class GenerateKeys
         {
-            //clone options here
         }
 
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Parser.Default.ParseArguments<Options, GenerateKeys>(args)
+            await Parser.Default.ParseArguments<Options, GenerateKeys>(args)
                    .MapResult(
                      (Options opts) => DecryptData(opts),
                      (GenerateKeys opts) => GenerateKey(opts),
-                    error => Task.FromResult(1));
+                    error =>
+                    {
+                        return Task.FromResult(1);
+                    });
         }
 
         public static async Task<int> DecryptData(Options opts)
@@ -56,43 +61,68 @@ namespace DecryptTool
             string? connectionString = opts.ConnectionString;
             if (connectionString == null)
             {
-                connectionString = Prompt.Input<string>("Supply Connection String:", "server=localhost;database=datadonation;user=root;password=example;OldGuids=true");
+                connectionString = Prompt.Input<string>("Supply Connection String", "server=localhost;database=datadonation;user=root;password=example;OldGuids=true");
             }
 
+            Console.Write("Checking Connection... ");
             var serverVersion = new MySqlServerVersion(ServerVersion.AutoDetect(connectionString));
             var dbContext = new DatabaseContext(new DbContextOptionsBuilder().UseMySql(connectionString, serverVersion).Options);
             await dbContext.Database.CanConnectAsync();
+            Console.Write("Successful.");
+            Console.WriteLine("");
+
 
             string? privateKeyPath = opts.PrivateKey;
             if (privateKeyPath == null)
             {
-                privateKeyPath = Prompt.Input<string>("Supply Private Key Path:", keysPath);
+                privateKeyPath = Prompt.Input<string>("Supply Private Key Path", keysPath);
             }
 
-            var privateKey = await File.ReadAllTextAsync(Path.Combine(keysPath, keysPrivateFileName));
-            var privateKeyBlocks = privateKey.Split("-", StringSplitOptions.RemoveEmptyEntries);
+            var privateFilePath = Path.Combine(keysPath, keysPrivateFileName);
+            if (!File.Exists(privateFilePath))
+            {
+                throw new Exception($"File at`{privateFilePath} does not exist.");
+            }
+            var privateKey = await File.ReadAllTextAsync(privateFilePath);
+            var privateKeyBlocks = RemoveLineBreaks(privateKey).Split("-", StringSplitOptions.RemoveEmptyEntries);
             var privateKeyBytes = Convert.FromBase64String(privateKeyBlocks[1]);
 
             var decryptRSA = RSA.Create();
             decryptRSA.ImportPkcs8PrivateKey(privateKeyBytes, out _);
 
+            var publicKeyPath = Path.Combine(keysPath, keysPublicFileName);
+            if (!File.Exists(publicKeyPath))
+            {
+                throw new Exception($"File at`{publicKeyPath} does not exist.");
+            }
+            var publicKey = RemoveLineBreaks(await File.ReadAllTextAsync(Path.Combine(keysPath, keysPublicFileName)));
+
+
             var records = new List<DataDonationEntry> { };
             await dbContext.DataDonationEntries.ForEachAsync(entry =>
             {
-                records.Add(new DataDonationEntry(
-                 entry.Id,
-                entry.date,
-                Decrypt(JsonSerializer.Deserialize<JsonElement>(entry.data), decryptRSA)
-                ));
+                try
+                {
+                    records.Add(new DataDonationEntry(
+                     entry.Id,
+                    entry.date,
+                    Decrypt(JsonSerializer.Deserialize<JsonElement>(entry.data), decryptRSA, publicKey)
+                    ));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Error on entry '{entry.Id}': {e.Message}");
+                }
             });
 
 
-            using (var writer = new StreamWriter("cleartext_data.csv"))
+            using (var writer = new StreamWriter(outputFile))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.WriteRecords(records);
             }
 
+            Console.WriteLine($"Export created. See '{outputFile}'");
             return 0;
         }
 
@@ -128,26 +158,40 @@ namespace DecryptTool
             return 0;
         }
 
-        public static string Decrypt(JsonElement data, RSA privateKey)
+        public static string Decrypt(JsonElement data, RSA privateKey, string publicKey)
         {
             JsonElement encryptedKey;
             JsonElement iv;
             JsonElement encryptedAnswers;
-            if (data.TryGetProperty("encryptedKey", out encryptedKey)
+            JsonElement signingKey;
+            if (
+                 data.TryGetProperty("encryptedKey", out encryptedKey)
                  && data.TryGetProperty("iv", out iv)
-                 && data.TryGetProperty("encryptedAnswers", out encryptedAnswers))
+                 && data.TryGetProperty("encryptedAnswers", out encryptedAnswers)
+                 && data.TryGetProperty("signingKey", out signingKey)
+            )
             {
+                if (RemoveLineBreaks(signingKey.GetString()) != publicKey)
+                {
+                    throw new Exception("SigningKey and PublicKey do not match.");
+                }
 
-
-                Console.WriteLine(encryptedKey.GetString());
-                Console.WriteLine(iv.GetString());
 
                 //first, get our bytes back from the base64 string ...
                 var bytesCypherText = Convert.FromBase64String(encryptedKey.GetString());
                 var iv_Bytes = Convert.FromBase64String(iv.GetString());
                 var encryptedAnswers_Bytes = Convert.FromBase64String(encryptedAnswers.GetString());
 
-                var aes_Key_Bytes = privateKey.Decrypt(bytesCypherText, RSAEncryptionPadding.OaepSHA256);
+                byte[] aes_Key_Bytes;
+                try
+                {
+
+                    aes_Key_Bytes = privateKey.Decrypt(bytesCypherText, RSAEncryptionPadding.OaepSHA256);
+                }
+                catch
+                {
+                    throw new Exception("Decryption failed. Are you using the right key?");
+                }
 
                 //var aesKey = System.Text.Encoding.Unicode.GetString(aes_Key_Bytes);
 
@@ -173,6 +217,11 @@ namespace DecryptTool
             {
                 throw new Exception("Data could not be encrypted. (Missing encyptedKey etc.");
             }
+        }
+
+        public static string RemoveLineBreaks(string str)
+        {
+            return str.Replace("\n", "").Replace("\r", "");
         }
     }
 }

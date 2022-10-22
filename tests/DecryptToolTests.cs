@@ -15,7 +15,8 @@ namespace DecryptTool.Tests
             var privateKey = RSA.Create();
             privateKey.ImportPkcs8PrivateKey(privateKeyBytes, out _);
 
-            var decrypted = Program.Decrypt(json, privateKey);
+            var publicKey = Program.RemoveLineBreaks("-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1O2IB+zQH01J6MW+ZpyH/lENnr1ny9et\nGHi7H2xvo/l4yeJXIQg0H8rJfp59wxtEL0YnOzB9SFByNEwoDsd7D03PvLOhth6605Yp9Tk2mTxf\n9YFdXD+voWhjInvl+2X+Ny8OUctdOS1P/3GOBn4+AHBd6QCyMxRUljOx7khzTkWckPafk6Ft9k1W\nzkVso0ID+Yr553g4VOn8UBIYP/61x5GP/WlWvUnKnQw5x+gXEYEBW0uJ5zNqkh/AB851SWsWCoPz\nD2PiHKGrUygRVSzjZa1fJhP+fa/29SxWnH6IiEmrVXHyTYkZ4gVYTLX31cKv6yM9w4BcgCe2Gy65\nvyP63QIDAQAB-----END PUBLIC KEY-----");
+            var decrypted = Program.Decrypt(json, privateKey, publicKey);
 
             Assert.Equal("""{"test":"test"}""", decrypted);
         }
