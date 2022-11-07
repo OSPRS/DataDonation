@@ -16,8 +16,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
     public IntegrationTestFactory()
     {
         _container = new TestcontainersBuilder<MySqlTestcontainer>()
-            .WithDatabase(new MySqlTestcontainerConfiguration { Database = "datadonation", Username = "test123", Password = "example"})
-            .WithEnvironment("MYSQL_ROOT_PASSWORD", "example")
+            .WithDatabase(new MySqlTestcontainerConfiguration { Database = "datadonation", Username = "root", Password = "example" })
             .WithImage("mysql:8.0.29")
             .WithCleanUp(true)
             .Build();
@@ -40,7 +39,7 @@ public class IntegrationTestFactory<TProgram, TDbContext> : WebApplicationFactor
                 }
             }
 
-            var connectionString = _container.ConnectionString.Replace("test123", "root") + ";OldGuids=true" ;
+            var connectionString = _container.ConnectionString + ";OldGuids=true";
 
             var serverVersion =
                 new MySqlServerVersion(ServerVersion.AutoDetect(connectionString));
