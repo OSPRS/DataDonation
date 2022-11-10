@@ -35,7 +35,7 @@ mysql
     
 # Install this service
 git clone https://github.com/CovOpen/DataDonation.git
-cd ./DataDonation
+cd ./DataDonation/api
 dotnet restore
 dotnet publish -c Release -o ./app
 # Edit the appsettings.json file in ./app/appsettings.json and change the connection string to the just created user and database. 
