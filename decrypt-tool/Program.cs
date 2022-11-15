@@ -18,6 +18,7 @@ namespace DecryptTool
         static string keysPath = "keys";
         static string keysPrivateFileName = "private_key.pem";
         static string keysPublicFileName = "public_key.pem";
+        static string outputFolder = "decrypted";
         static string outputFile = "cleartext_data.csv";
 
         [Verb("decrypt", true, HelpText = "Decrypt Data from Database.")]
@@ -92,17 +93,21 @@ namespace DecryptTool
             }
             var publicKey = RemoveLineBreaks(await File.ReadAllTextAsync(Path.Combine(keysPath, keysPublicFileName)));
 
+            if (!Directory.Exists(outputFolder))
+            {
+                Directory.CreateDirectory(outputFolder);
+            }
 
             var records = new List<DataDonationEntry> { };
             await dbContext.DataDonationEntries.ForEachAsync(entry =>
             {
                 try
                 {
-                    records.Add(new DataDonationEntry(
-                     entry.Id,
-                    entry.date,
-                    Decrypt(JsonSerializer.Deserialize<JsonElement>(entry.data), decryptRSA, publicKey)
-                    ));
+                    string decryptedEntry = Decrypt(JsonSerializer.Deserialize<JsonElement>(entry.data), decryptRSA, publicKey);
+                    records.Add(new DataDonationEntry(entry.Id, entry.date, decryptedEntry));
+
+                    DecodeImage(decryptedEntry, Path.Join(outputFolder, entry.Id.ToString()));
+
                 }
                 catch (Exception e)
                 {
@@ -111,13 +116,13 @@ namespace DecryptTool
             });
 
 
-            using (var writer = new StreamWriter(outputFile))
+            using (var writer = new StreamWriter(Path.Join(outputFolder, outputFile)))
             using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
             {
                 csv.WriteRecords(records);
             }
 
-            Console.WriteLine($"Export with {records.Count()} Entries created. See '{outputFile}'");
+            Console.WriteLine($"Export with {records.Count()} Entries created. See '{outputFolder}' Folder.");
             return 0;
         }
 
@@ -211,6 +216,48 @@ namespace DecryptTool
             else
             {
                 throw new Exception("Data could not be encrypted. (Data might already be in cleartext: Missing 'encyptedKey' Property etc.)");
+            }
+        }
+
+        public static void DecodeImage(string answersString, string filename)
+        {
+            var data = JsonSerializer.Deserialize<JsonElement>(answersString);
+
+            JsonElement answers;
+            if (data.TryGetProperty("answers", out answers))
+            {
+                var answersArray = answers.EnumerateArray();
+
+                while (answersArray.MoveNext())
+                {
+                    var answer = answersArray.Current;
+                    JsonElement questionId;
+                    if (answersArray.Current.TryGetProperty("questionId", out questionId))
+                    {
+                        if (questionId.GetString() == "ai_image_recognition")
+                        {
+                            JsonElement rawAnswer;
+                            if (answersArray.Current.TryGetProperty("rawAnswer", out rawAnswer))
+                            {
+                                JsonElement img;
+                                if (rawAnswer.TryGetProperty("img", out img))
+                                {
+                                    string decodedString = img.GetString();
+                                    // Check if double wrapped in base64, if so unwrap
+                                    if (!decodedString.StartsWith("data"))
+                                    {
+                                        byte[] imageString = Convert.FromBase64String(img.GetString());
+                                        decodedString = Encoding.UTF8.GetString(imageString);
+                                    }
+                                    var resourceUrl = decodedString.Split(",");
+                                    var fileSuffix = resourceUrl[0].Split("/")[1].Split(";")[0];
+                                    string filePath = $"{filename}.{fileSuffix}";
+                                    File.WriteAllBytes(filePath, Convert.FromBase64String(resourceUrl[1]));
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
