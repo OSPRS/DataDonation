@@ -1,0 +1,43 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Update GIF
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - tests-bats/demo.tape
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install Deps
+      run: | 
+        cd ..
+        sudo apt-get install build-essential cmake git libjson-c-dev libwebsockets-dev -y
+        git clone https://github.com/tsl0922/ttyd.git
+        cd ttyd && mkdir build && cd build
+        cmake ..
+        make && sudo make install
+        go install github.com/charmbracelet/vhs@latest
+
+    - name: Run Generator
+      run: |
+        cd tests-bats
+        npx bats decrypt-tool.bats --filter 'generategif'
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.1
+      with:
+        # Artifact name
+        name: api
+        # A file, directory or wildcard pattern that describes what to upload
+        path: tests-bats/demo.gif
+        if-no-files-found: error

@@ -54,6 +54,11 @@ EOF
 }
 
 
+@test "generategif" {
+    vhs demo.tape
+}
+
+
 teardown() {
     # rm -r ./decrypted
     cd ..
