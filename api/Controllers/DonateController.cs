@@ -30,7 +30,7 @@ namespace API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost]
-        [RequestSizeLimit(100_000_000)]
+        // [RequestSizeLimit(100_000_000)]
         public async Task<ActionResult> Submit(JsonElement data)
         {
             // TODO: Add validation

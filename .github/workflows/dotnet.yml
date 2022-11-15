@@ -28,6 +28,11 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Test-Bats
+      run: | 
+        cd tests-bats
+        npx bats decrypt-tool.bats
+
     - name: Make Artifact Folders
       run: |
         mkdir out

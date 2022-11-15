@@ -451,4 +451,8 @@ $RECYCLE.BIN/
 keys/
 *.pem
 *.csv
-!tests/example.pem
+!tests-bats/example.pem
+
+# Bats test
+tests-bats/decrypted/
+tests-bats/decrypt-tool

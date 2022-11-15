@@ -1,0 +1,16 @@
+{
+  "answers": [
+    { "questionId": "q_intro", "rawAnswer": "yes" },
+    { "questionId": "q_rash", "rawAnswer": "yes" },
+    { "questionId": "q_photo", "rawAnswer": "yes" },
+    {
+      "questionId": "ai_image_recognition",
+      "rawAnswer": {
+        "confidence": 0.978430250659585,
+        "img": "ZGF0YTppbWFnZS9qcGVnO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQUVBQUFBQkNBWUFBQUFmRmNTSkFBQUFEVWxFUVZSNDJtUDh6L0MvSGdBR2d3Si9sSzNRNndBQUFBQkpSVTVFcmtKZ2dnPT0="
+      }
+    },
+    { "questionId": "covapp_data_donation", "rawAnswer": "yes" }
+  ],
+  "version": 1
+}

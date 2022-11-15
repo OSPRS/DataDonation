@@ -1,24 +1,66 @@
 ﻿using Xunit;
 using System.Text.Json;
 using System.Security.Cryptography;
+using System.Text;
+using Xunit.Abstractions;
+using Serilog;
 
 namespace DecryptTool.Tests
 {
     public class DecryptToolTests
     {
+        public ILogger _output;
+        public DecryptToolTests(ITestOutputHelper output)
+        {
+            _output = output.CreateTestLogger();
+        }
+        public string GetFileHash(string filename)
+        {
+            var hash = new SHA1Managed();
+            var clearBytes = File.ReadAllBytes(filename);
+            var hashedBytes = hash.ComputeHash(clearBytes);
+            return ConvertBytesToHex(hashedBytes);
+        }
+
+        public string ConvertBytesToHex(byte[] bytes)
+        {
+            var sb = new StringBuilder();
+
+            for (var i = 0; i < bytes.Length; i++)
+            {
+                sb.Append(bytes[i].ToString("x"));
+            }
+            return sb.ToString();
+        }
+
         [Fact()]
         public void DecryptTest()
         {
-            var json = JsonSerializer.Deserialize<JsonElement>("""{"encryptedAnswers":"1C6oeBKm6/hjIRT+E2BYrQD+2+oD7op7iiCmyijPVg==","encryptedKey":"X2+sH9d+tQTHjdTGJ6X9vBewtgHIwwPQW46hb0dM3MtjJrj1jWrrb6LZDWgQkxlh485Rz6ica8Tg0YFWNHvNThbaufAbGJfFIGz38ZZXMm/9KnwTQJgbfL9ldCYfJi99Q9iCJFDlKETVDq9c0Xf7GxvbLHufREJ8PJYfZvCEjq04lPjXbHo8Hs9m2jijZSWBwbfjRpiWYu4i1cOimKBIJS0ZpgsT7mn2lZ+fQpE7RJKOML5I1KTlnm4KeO2S9u4mA7ysWPCy01GY1UFqkHYvy5wy/C/34IQilygSuA3VX+aTB8Zt9kLgBjp8otthB87CmXr77knNCiGv9FS6ObSyXQ==","iv":"rmLOHTCP4CnqqA26","signingKey":"-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1O2IB+zQH01J6MW+ZpyH/lENnr1ny9et\nGHi7H2xvo/l4yeJXIQg0H8rJfp59wxtEL0YnOzB9SFByNEwoDsd7D03PvLOhth6605Yp9Tk2mTxf\n9YFdXD+voWhjInvl+2X+Ny8OUctdOS1P/3GOBn4+AHBd6QCyMxRUljOx7khzTkWckPafk6Ft9k1W\nzkVso0ID+Yr553g4VOn8UBIYP/61x5GP/WlWvUnKnQw5x+gXEYEBW0uJ5zNqkh/AB851SWsWCoPz\nD2PiHKGrUygRVSzjZa1fJhP+fa/29SxWnH6IiEmrVXHyTYkZ4gVYTLX31cKv6yM9w4BcgCe2Gy65\nvyP63QIDAQAB\n-----END PUBLIC KEY-----"}""");
-            var privateKeyBytes = Convert.FromBase64String("MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDU7YgH7NAfTUnoxb5mnIf+UQ2evWfL160YeLsfbG+j+XjJ4lchCDQfysl+nn3DG0QvRic7MH1IUHI0TCgOx3sPTc+8s6G2HrrTlin1OTaZPF/1gV1cP6+haGMie+X7Zf43Lw5Ry105LU//cY4Gfj4AcF3pALIzFFSWM7HuSHNORZyQ9p+ToW32TVbORWyjQgP5ivnneDhU6fxQEhg//rXHkY/9aVa9ScqdDDnH6BcRgQFbS4nnM2qSH8AHznVJaxYKg/MPY+IcoatTKBFVLONlrV8mE/59r/b1LFacfoiISatVcfJNiRniBVhMtffVwq/rIz3DgFyAJ7YbLrm/I/rdAgMBAAECggEAfNDUqdie04qJ5cJs71eYvHKk6kWbH7nJBQxYnH4DH3rw3F8qtflKHMzRusCLdiB4osGb461z8zz9BT0TSj6TG5CAUtx10f1HhRqEc/Ra1g63LYHsyVOnz5USb7dzRCAwmgaifT4Z4pd2SoY1PAcqrzUvR5OZ4ilrwDSDe+vKc7l2e5WPbbT+9ukBux5ab+u1m5koRpHM8vLCbO4/Dv/jQFRm2bYynV6J/ptG2iTDi0A97xWMvAlDa2iUThZAoA3/iq1nO8Ku4Nl4BXKM64ec7+fX3WTyl+S9NRwiGjEV8nJZJdVdssUC1+hJh8hn1sKhl7Y9P34X2ZIJeGyXTSI0oQKBgQD29GsTUzW5HALy9cbqDAgoH+uzGN+5KLJKVkn2y3cpKiuYq3patOQXX8/EwqWkMh/OwpKZFJaPsNZB4eWfcWhcuR2Wxi4Xc5bQ5pjS+CxmNJ1nVNoUPrAQQ+mwQM0KJjnaFdtNAF9TFnrvP+a5lhN86D5mpikVakLcWHeWuWTKyQKBgQDcug70zbcg6zd0QfC1jZG+Nui7SLATgjwY8g3VTqjyNw8rhCTx8mLP9XdT9zi/mTgFdFJtY+v2rujN3JdyVRxxHmcdNMXnUUJKHzCi6Vzl+aKSQrsGTShlWBImX2ddll0DN+iPKeTiCXIa2B0BLLkURqUg9rWG6bAG7k1mFoJldQKBgA370yBaAt3Df0tArY3NNp0HCbKvguOaMVZSQofuB4ZWM/fGJfyC57OHIl2y4+xDRlfP3rs6Vjg2vDsoznbT1iQB+3HxMOT1D6IunJK9qM30xsD2Jg8laZTSM6ZeVP3xIi9+M1fN4Jf02us3RBpYLCxTfk0TtZnX1Ydinwry3ok5AoGBAIzPwZTY29gLVrA7FOWtr+mKPASmhXWcotxDJyIKcWs8Rtg7EBqtx+3lKcAOOky44W1RXPheQ3127hvOe2s78s4TWDLgpNRCGakRpsR3XYV1MQpfudJ2TKwCeGm0eUvSDfpso1cZoeO1pO6NKkvCjTvrKZMS8JFl6Z8yTXwwJfW1AoGBAMZGHZ9iawLYqh9ho8JWSMlxvV+aQouoqLx5Ica0jfCQIT/fykqQa5QxD05WkBkK3bPapxFMifEm7+jGzKNDCcPRQwrUdJHpqPzuEsNux9s6LojKolCmEXeZS7f18dqK0YNGJeuPkCh4vlJze7iAhj6lb6UhcmkCtDkR+kMza4el");
-
+            var json = JsonSerializer.Deserialize<JsonElement>(File.ReadAllText($"files/answer_image_encrypted.json"));
+            var privateKeyBytes = Convert.FromBase64String("MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCfmO39ggLnj9tGORmW9boM7WRbWy9t2MTgrsU6UrSq/c1EdxL3gh7bpZKM14CDikzcMSXydLM/9CpsJ3s5mGoywQYmtnRqzn1U7Ho+/IKVuROL8W5TGWc8y53CsohgQscRhMyq5uqvzUsbjnKWshfanNcFnm3Fqz6egGqRt0Ro77cDp72yA9yGTffimFNMpAgem04yajhXzrJU+cdekaZujfY9fqkbwFnSOWxSCEfR78HSzkMIjwvVxCzvQ5JAMM03h/uRBpBajhV+MdYuvQS+aUYb1dwSlzy5y6nf9abFPcd1m5SN220tnb/oqZsRwC3/Bx3HEUoXpwHR0eQE8+5tAgMBAAECggEAE1cvEBefTnyKcBofVcH1h/eEv+Vu+/rW8Pt8/zJino4fP/rGG6RzJN8NwW+kLUynP8/c72LhDhECyxSFxFcKF5h4rFxUA1V+rrnxnoxvLsG88qqRWhSsBBwQxDVqfW/aO+9B9jwBmMhiH7bFgCmY5m83R4EJgHjeH8skHwB8k9K39Db3+My5bFwYYR3VKC+4E6R6LeUmuZ7g5vTgR2YqYzRcJom8M0DCHeA+PDbf0hB3WrNUOEENgB6XxOTe5/ZrDdaSFDr7lx7xmKCw7RK7X9OZqtUtf83SFIX1JWvYNIbNktSOLgAMXnOKmYkywYbWhfPY9HjzkE26HfZYq0/DaQKBgQDOwGeMflk0ni7wZHHfEtG3m4ryhper2sxNjpMFx6F4mLbxR1742QLaW1YvykPzUYfzqMj2wRXK3ZbAESPUWo+V9Nq+P5jjFGC98tyfLizd3nKILs7f3brKZNLEYmkq6gWkmHqkRRywt/WngA1pRf8+5EokGJkTISAcNqHh+t9vVwKBgQDFnRarT359EMBNh569yFSouVPcdwuVGiEQMvi8KlxcuTE65EUeyllFfN8bYR18w3E8fqT0Ou0LjXscr9DXE65mHrdMki8VtTy5//HzD6jUFKqvyyeYUJqhD0gjNKsurUk3gVKsxNZiQOzZIaNXSuV8QzY1j7i+0d4sFD4Kn+Np2wKBgQC5+xfqqKmEDJs6wZAxU1N1b6TA31PGUs6fIZadh2N4AR/n0QTcoxHO7ISN/su7L+c0xuroFO6Oi2AVLBXn6wLoqNawdrMH6gfQNoxBYJ8ZggXS/RA5DtL9R07VO5VQ9izXUBZaeJUDXqfK4gSuYznlECSlbb8dFxo0ZuyeRDcDhwKBgQC9Rfe3f31kZo359EL7/YvwywliqXcjiZJPhLKu71fly882W/tEQYV9w9uhysPGgx/LVHXEI0h1/z4CvPcneYdZ8mOYaI/Gl/+hG19vcfk/oMfXdprnDZT9XLi4V7L6EymEi05XgnTgSNVSJyDe9DKXcXzTkmPeCP9mcsD1xiy4bwKBgHXo4FnnsXui6PSFLDXjnERcYyn/hYJg2I+FqibMoOe18wA0X18P9hKWQfRx+TsykdDRU0w8DLTn87j+8zVyAy/BeFK5f4IIo69J1zs0S7XXAHgKY9HYqL0KJ6bO3etqu9YT6jQEA2SM/VG4QElWMzDspoB4Gjm9cPC13NE9mojU");
             var privateKey = RSA.Create();
             privateKey.ImportPkcs8PrivateKey(privateKeyBytes, out _);
 
-            var publicKey = Program.RemoveLineBreaks("-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1O2IB+zQH01J6MW+ZpyH/lENnr1ny9et\nGHi7H2xvo/l4yeJXIQg0H8rJfp59wxtEL0YnOzB9SFByNEwoDsd7D03PvLOhth6605Yp9Tk2mTxf\n9YFdXD+voWhjInvl+2X+Ny8OUctdOS1P/3GOBn4+AHBd6QCyMxRUljOx7khzTkWckPafk6Ft9k1W\nzkVso0ID+Yr553g4VOn8UBIYP/61x5GP/WlWvUnKnQw5x+gXEYEBW0uJ5zNqkh/AB851SWsWCoPz\nD2PiHKGrUygRVSzjZa1fJhP+fa/29SxWnH6IiEmrVXHyTYkZ4gVYTLX31cKv6yM9w4BcgCe2Gy65\nvyP63QIDAQAB-----END PUBLIC KEY-----");
+            var publicKey = Program.RemoveLineBreaks("-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAn5jt/YIC54/bRjkZlvW6DO1kW1svbdjE4K7FOlK0qv3NRHcS94Ie26WSjNeAg4pM3DEl8nSzP/QqbCd7OZhqMsEGJrZ0as59VOx6PvyClbkTi/FuUxlnPMudwrKIYELHEYTMqubqr81LG45ylrIX2pzXBZ5txas+noBqkbdEaO+3A6e9sgPchk334phTTKQIHptOMmo4V86yVPnHXpGmbo32PX6pG8BZ0jlsUghH0e/B0s5DCI8L1cQs70OSQDDNN4f7kQaQWo4VfjHWLr0EvmlGG9XcEpc8ucup3/WmxT3HdZuUjdttLZ2/6KmbEcAt/wcdxxFKF6cB0dHkBPPubQIDAQAB-----END PUBLIC KEY-----");
             var decrypted = Program.Decrypt(json, privateKey, publicKey);
 
-            Assert.Equal("""{"test":"test"}""", decrypted);
+            Assert.Equal("""{"answers":[{"questionId":"ai_image_recognition","rawAnswer":{"confidence":0.010388672351837158,"img":"ZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFBRUFBQUFCQ0FZQUFBQWZGY1NKQUFBQURVbEVRVlI0Mm1QOHovQy9IZ0FHZ3dKL2xLM1E2d0FBQUFCSlJVNUVya0pnZ2c9PQ=="}},{"questionId":"covapp_data_donation","rawAnswer":"yes"}],"version":1}""", decrypted);
         }
+
+        [Theory]
+        [InlineData("wrapped")]
+        [InlineData("unwrapped")]
+        public void DecodeImage(string type)
+        {
+            Program.DecodeImage(File.ReadAllText($"files/answer_image_{type}.json"), $"testimage");
+            const string originalFile = @"files/image.png";
+            const string copiedFile = @"testimage.png";
+
+            var originalHash = GetFileHash(originalFile);
+            var copiedHash = GetFileHash(copiedFile);
+
+            Assert.Equal(copiedHash, originalHash);
+        }
+
     }
 }

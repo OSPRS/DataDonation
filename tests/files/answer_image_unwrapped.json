@@ -1,0 +1,16 @@
+{
+  "answers": [
+    { "questionId": "q_intro", "rawAnswer": "yes" },
+    { "questionId": "q_rash", "rawAnswer": "yes" },
+    { "questionId": "q_photo", "rawAnswer": "yes" },
+    {
+      "questionId": "ai_image_recognition",
+      "rawAnswer": {
+        "confidence": 0.978430250659585,
+        "img": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HgAGgwJ/lK3Q6wAAAABJRU5ErkJggg=="
+      }
+    },
+    { "questionId": "covapp_data_donation", "rawAnswer": "yes" }
+  ],
+  "version": 1
+}
