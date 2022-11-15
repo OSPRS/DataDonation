@@ -455,4 +455,5 @@ keys/
 
 # Bats test
 tests-bats/decrypted/
+tests-bats/demo/
 tests-bats/decrypt-tool

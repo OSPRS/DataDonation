@@ -55,17 +55,17 @@ EOF
 
 
 @test "generategif" {
-    mv ./decrypt-tool.bats /tmp/decrypt-tool.bats 
-    mv ./demo.tape /tmp/demo.tape 
-    mv ./example.pem /tmp/example.pem 
-    mv ./backup.sql /tmp/backup.sql 
+    mkdir ./demo || echo 0
+    cp ./decrypt-tool ./demo/decrypt-tool
+    cp -r keys ./demo/keys    
+    cd demo
+    
+    vhs ../demo.tape
 
-    vhs demo.tape
-    mv /tmp/decrypt-tool.bats ./decrypt-tool.bats 
-    mv /tmp/demo.tape ./demo.tape
-    mv /tmp/example.pem ./example.pem
-    mv /tmp/backup.sql ./backup.sql  
+    mv demo.gif ../../docs/demo.gif
 
+    cd ..
+    rm -r demo
 }
 
 

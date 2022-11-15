@@ -14,6 +14,9 @@ keys
  |-- public_key.pem
 ```
 
+![GIF of the CLI Usage](../docs/demo.gif)
+
+
 The Keys have to be in PKCS8 Format in order to work. 
 
 ### Executables

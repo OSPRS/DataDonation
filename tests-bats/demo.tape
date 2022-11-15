@@ -1,5 +1,5 @@
 # Where should we write the GIF?
-Output ../docs/demo.gif
+Output demo.gif
 
 # Set up a 1200x600 terminal with 46px font.
 Set FontSize 16
@@ -21,6 +21,13 @@ Type "./decrypt-tool --privateKeyFolder keys"
 Sleep 500ms
 
 # Run the command by pressing enter.
+Enter
+
+Type "cd decrypted"
+Enter
+
+Type "ls -l"
+Sleep 200ms
 Enter
 
 # Admire the output for a bit.

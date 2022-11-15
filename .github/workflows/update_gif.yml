@@ -8,6 +8,10 @@ on:
     branches: [ "main" ]
     paths:
       - tests-bats/demo.tape
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - tests-bats/demo.tape
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -21,7 +25,8 @@ jobs:
     - name: Install Deps
       run: | 
         cd ..
-        sudo apt-get install build-essential cmake git libjson-c-dev libwebsockets-dev -y
+        sudo apt-get update
+        sudo apt-get install ffmpeg build-essential cmake git libjson-c-dev libwebsockets-dev -y
         git clone https://github.com/tsl0922/ttyd.git
         cd ttyd && mkdir build && cd build
         cmake ..
