@@ -55,7 +55,17 @@ EOF
 
 
 @test "generategif" {
+    mv ./decrypt-tool.bats /tmp/decrypt-tool.bats 
+    mv ./demo.tape /tmp/demo.tape 
+    mv ./example.pem /tmp/example.pem 
+    mv ./backup.sql /tmp/backup.sql 
+
     vhs demo.tape
+    mv /tmp/decrypt-tool.bats ./decrypt-tool.bats 
+    mv /tmp/demo.tape ./demo.tape
+    mv /tmp/example.pem ./example.pem
+    mv /tmp/backup.sql ./backup.sql  
+
 }
 
 
