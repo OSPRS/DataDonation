@@ -2,4 +2,4 @@
 
 ## Development
 
-Passphrase for example private key: `example`. 
+Passphrase for example private key: `example`.
