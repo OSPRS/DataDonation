@@ -24,7 +24,7 @@ Sleep 500ms
 Enter
 
 # Let the tool run
-Sleep 1s
+Sleep 5s
 
 Type "cd decrypted"
 Enter
