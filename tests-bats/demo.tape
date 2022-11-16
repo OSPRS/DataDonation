@@ -2,7 +2,7 @@
 Output demo.gif
 
 # Set up a 1200x600 terminal with 46px font.
-Set FontSize 16
+Set FontSize 14
 Set Width 1200
 Set Height 600
 
@@ -22,6 +22,9 @@ Sleep 500ms
 
 # Run the command by pressing enter.
 Enter
+
+# Let the tool run
+Sleep 1s
 
 Type "cd decrypted"
 Enter
