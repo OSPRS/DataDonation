@@ -32,7 +32,6 @@ jobs:
       run: | 
         cd tests-bats
         npx bats decrypt-tool.bats --filter '[^generategif]'
-
     - name: Make Artifact Folders
       run: |
         mkdir out

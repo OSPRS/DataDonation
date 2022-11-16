@@ -52,9 +52,9 @@ namespace DecryptTool.Tests
         [InlineData("unwrapped")]
         public void DecodeImage(string type)
         {
-            Program.DecodeImage(File.ReadAllText($"files/answer_image_{type}.json"), $"testimage");
+            Program.DecodeImage(File.ReadAllText($"files/answer_image_{type}.json"), $"{type}");
             const string originalFile = @"files/image.png";
-            const string copiedFile = @"testimage.png";
+            string copiedFile = $"{type}.png";
 
             var originalHash = GetFileHash(originalFile);
             var copiedHash = GetFileHash(copiedFile);

@@ -7,7 +7,7 @@
       "questionId": "ai_image_recognition",
       "rawAnswer": {
         "confidence": 0.978430250659585,
-        "img": "ZGF0YTppbWFnZS9qcGVnO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBQUVBQUFBQkNBWUFBQUFmRmNTSkFBQUFEVWxFUVZSNDJtUDh6L0MvSGdBR2d3Si9sSzNRNndBQUFBQkpSVTVFcmtKZ2dnPT0="
+        "img": "ZGF0YTppbWFnZS9wbmc7YmFzZTY0LGlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFBRUFBQUFCQ0FZQUFBQWZGY1NKQUFBQURVbEVRVlI0Mm1QOHovQy9IZ0FHZ3dKL2xLM1E2d0FBQUFCSlJVNUVya0pnZ2c9PQ=="
       }
     },
     { "questionId": "covapp_data_donation", "rawAnswer": "yes" }

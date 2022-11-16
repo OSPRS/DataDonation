@@ -20,12 +20,12 @@ setup() {
     done;
     echo "Ready!"
     sleep 1
-    cd tests-bats
-    docker-compose exec -T db mysql -uroot -pexample <<EOF
+    docker compose exec -T db mysql -uroot -pexample <<EOF
 CREATE DATABASE datadonation;
 USE datadonation;
-$(cat backup.sql)
+$(cat ./tests-bats/backup.sql)
 EOF
+    cd tests-bats
 }
 
 @test "decrypting" {
