@@ -29,7 +29,7 @@ EOF
 }
 
 @test "decrypting" {
-    
+
     export DECRYPT_TOOL_CONNECTION_STRING="server=localhost;database=datadonation;user=root;password=example;OldGuids=true"
     run ./decrypt-tool --privateKeyFolder keys
     [ "$status" -eq 0 ]
@@ -57,9 +57,9 @@ EOF
 @test "generategif" {
     mkdir ./demo || echo 0
     cp ./decrypt-tool ./demo/decrypt-tool
-    cp -r keys ./demo/keys    
+    cp -r keys ./demo/keys
     cd demo
-    
+
     vhs ../demo.tape
 
     mv demo.gif ../../docs/demo.gif
